@@ -21,11 +21,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.concurrent.Callable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -164,10 +166,10 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	}
 
 	private void disableContentCachingIfNecessary(ServletWebRequest webRequest) {
-		if (!isRequestNotModified(webRequest)) {
+		if (isRequestNotModified(webRequest)) {
 			HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 			Assert.notNull(response, "Expected HttpServletResponse");
-			if (StringUtils.hasText(response.getHeader("ETag"))) {
+			if (StringUtils.hasText(response.getHeader(HttpHeaders.ETAG))) {
 				HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 				Assert.notNull(request, "Expected HttpServletRequest");
 				ShallowEtagHeaderFilter.disableContentCaching(request);

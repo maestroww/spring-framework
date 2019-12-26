@@ -38,6 +38,10 @@ import org.springframework.transaction.TransactionException;
  * application services utilizing this class, making calls to the low-level
  * services via an inner-class callback object.
  *
+ * <p>Transactional Publishers should avoid Subscription cancellation.
+ * Cancelling initiates asynchronous transaction cleanup that does not allow for
+ * synchronization on completion.
+ *
  * @author Mark Paluch
  * @author Juergen Hoeller
  * @since 5.2
@@ -45,20 +49,6 @@ import org.springframework.transaction.TransactionException;
  * @see ReactiveTransactionManager
  */
 public interface TransactionalOperator {
-
-	/**
-	 * Create a new {@link TransactionalOperator} using {@link ReactiveTransactionManager}
-	 * and {@link TransactionDefinition}.
-	 * @param transactionManager the transaction management strategy to be used
-	 * @param transactionDefinition the transaction definition to apply
-	 * @return the transactional operator
-	 */
-	static TransactionalOperator create(
-			ReactiveTransactionManager transactionManager, TransactionDefinition transactionDefinition){
-
-		return new DefaultTransactionalOperator(transactionManager, transactionDefinition);
-	}
-
 
 	/**
 	 * Wrap the functional sequence specified by the given Flux within a transaction.
@@ -78,9 +68,7 @@ public interface TransactionalOperator {
 	 * @throws TransactionException in case of initialization, rollback, or system errors
 	 * @throws RuntimeException if thrown by the TransactionCallback
 	 */
-	default <T> Mono<T> transactional(Mono<T> mono) {
-		return execute(it -> mono).next();
-	}
+	<T> Mono<T> transactional(Mono<T> mono);
 
 	/**
 	 * Execute the action specified by the given callback object within a transaction.
@@ -93,6 +81,32 @@ public interface TransactionalOperator {
 	 * @throws TransactionException in case of initialization, rollback, or system errors
 	 * @throws RuntimeException if thrown by the TransactionCallback
 	 */
-	<T> Flux<T> execute(ReactiveTransactionCallback<T> action) throws TransactionException;
+	<T> Flux<T> execute(TransactionCallback<T> action) throws TransactionException;
+
+
+	// Static builder methods
+
+	/**
+	 * Create a new {@link TransactionalOperator} using {@link ReactiveTransactionManager},
+	 * using a default transaction.
+	 * @param transactionManager the transaction management strategy to be used
+	 * @return the transactional operator
+	 */
+	static TransactionalOperator create(ReactiveTransactionManager transactionManager){
+		return create(transactionManager, TransactionDefinition.withDefaults());
+	}
+
+	/**
+	 * Create a new {@link TransactionalOperator} using {@link ReactiveTransactionManager}
+	 * and {@link TransactionDefinition}.
+	 * @param transactionManager the transaction management strategy to be used
+	 * @param transactionDefinition the transaction definition to apply
+	 * @return the transactional operator
+	 */
+	static TransactionalOperator create(
+			ReactiveTransactionManager transactionManager, TransactionDefinition transactionDefinition){
+
+		return new TransactionalOperatorImpl(transactionManager, transactionDefinition);
+	}
 
 }

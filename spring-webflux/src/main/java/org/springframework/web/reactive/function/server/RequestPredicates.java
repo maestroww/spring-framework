@@ -111,6 +111,9 @@ public abstract class RequestPredicates {
 	 */
 	public static RequestPredicate path(String pattern) {
 		Assert.notNull(pattern, "'pattern' must not be null");
+		if (!pattern.isEmpty() && !pattern.startsWith("/")) {
+			pattern = "/" + pattern;
+		}
 		return pathPredicates(DEFAULT_PATTERN_PARSER).apply(pattern);
 	}
 
@@ -349,7 +352,7 @@ public abstract class RequestPredicates {
 		void pathExtension(String extension);
 
 		/**
-		 * Receive notification of a HTTP header predicate.
+		 * Receive notification of an HTTP header predicate.
 		 * @param name the name of the HTTP header to check
 		 * @param value the desired value of the HTTP header
 		 * @see RequestPredicates#headers(Predicate)
@@ -942,6 +945,11 @@ public abstract class RequestPredicates {
 		@Override
 		public Optional<InetSocketAddress> remoteAddress() {
 			return this.request.remoteAddress();
+		}
+
+		@Override
+		public Optional<InetSocketAddress> localAddress() {
+			return this.request.localAddress();
 		}
 
 		@Override

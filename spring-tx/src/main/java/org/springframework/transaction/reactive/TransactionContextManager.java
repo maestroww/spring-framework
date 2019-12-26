@@ -33,7 +33,7 @@ import org.springframework.transaction.NoTransactionException;
  *
  * @author Mark Paluch
  * @since 5.2
- * @see ReactiveTransactionSynchronization
+ * @see TransactionSynchronization
  */
 public abstract class TransactionContextManager {
 
@@ -62,7 +62,7 @@ public abstract class TransactionContextManager {
 					return;
 				}
 			}
-			sink.error(new NoTransactionException("No transaction in context"));
+			sink.error(new NoTransactionInContextException());
 		});
 	}
 
@@ -80,7 +80,7 @@ public abstract class TransactionContextManager {
 	/**
 	 * Return a {@link Function} to create or associate a new {@link TransactionContext}.
 	 * Interaction with transactional resources through
-	 * {@link ReactiveTransactionSynchronizationManager} requires a TransactionContext
+	 * {@link TransactionSynchronizationManager} requires a TransactionContext
 	 * to be registered in the subscriber context.
 	 * @return functional context registration.
 	 */
@@ -88,7 +88,7 @@ public abstract class TransactionContextManager {
 		return context -> {
 			TransactionContextHolder holder = context.get(TransactionContextHolder.class);
 			if (holder.hasContext()) {
-				context.put(TransactionContext.class, holder.currentContext());
+				return context.put(TransactionContext.class, holder.currentContext());
 			}
 			return context.put(TransactionContext.class, holder.createContext());
 		};
@@ -109,6 +109,24 @@ public abstract class TransactionContextManager {
 			}
 			return context;
 		};
+	}
+
+
+	/**
+	 * Stackless variant of {@link NoTransactionException} for reactive flows.
+	 */
+	@SuppressWarnings("serial")
+	private static class NoTransactionInContextException extends NoTransactionException {
+
+		public NoTransactionInContextException() {
+			super("No transaction in context");
+		}
+
+		@Override
+		public synchronized Throwable fillInStackTrace() {
+			// stackless exception
+			return this;
+		}
 	}
 
 }

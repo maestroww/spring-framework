@@ -25,7 +25,7 @@ Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
 #### Discuss
 
 If you have a question, check Stack Overflow using
-[this list of tags](https://spring.io/questions), organized by Spring project.
+[this list of tags](https://stackoverflow.com/questions/tagged/spring+or+spring-mvc+or+spring-aop+or+spring-jdbc+or+spring-transactions+or+spring-annotations+or+spring-jms+or+spring-el+or+spring-test+or+spring+or+spring-remoting+or+spring-orm+or+spring-jmx+or+spring-cache+or+spring-webflux?tab=Newest).
 Find an existing discussion, or start a new one if necessary.
 
 If you believe there is an issue, search through
@@ -125,10 +125,7 @@ The reference documentation is in the [src/docs/asciidoc](src/docs/asciidoc) dir
 edit source files, and submit directly from GitHub.
 
 When making changes locally, execute `./gradlew asciidoctor` and then browse the result under
-`build/asciidoc/html5/index.html`.
+`build/docs/ref-docs/html5/index.html`.
 
-Asciidoctor also supports live editing. For more details read
-[Editing AsciiDoc with Live Preview](https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/).
-Note that if you choose the
-[System Monitor](https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/#using-a-system-monitor)
-option, you can find a Guardfile under `src/docs/asciidoc`.
+Asciidoctor also supports live editing. For more details see
+[AsciiDoc Tooling](https://docs.asciidoctor.org/asciidoctor/latest/tooling/).
